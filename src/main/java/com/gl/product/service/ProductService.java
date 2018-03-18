@@ -46,4 +46,19 @@ public class ProductService {
 		}
 		return list;
 	}
+
+	public void addNewProduct(Product product) throws Exception {
+		StringBuilder sb = new StringBuilder();
+		sb.append("insert into tbl_product(fld_name, fld_series, fld_spec, fld_price, fld_vip_price, fld_vip_voucher)")
+			.append(" values('").append(product.getFldName())
+			.append("', '").append(product.getFldSeries())
+			.append("', '").append(product.getFldSpec())
+			.append("', ").append(product.getFldPrice())
+			.append(", ").append(product.getFldVipPrice())
+			.append(", ").append(product.getFldVipVoucher())
+			.append(")");
+		String sql = sb.toString();
+		System.out.println(sql);
+		jdbcService.executeSql(sql);
+	}
 }

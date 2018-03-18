@@ -1,7 +1,6 @@
 package com.gl.product.controller;
 
 import java.io.File;
-import java.sql.SQLException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSON;
 import com.gl.common.controller.BaseController;
 import com.gl.common.entity.SimpleResult;
+import com.gl.product.entity.Product;
 import com.gl.product.service.ProductService;
 import com.gl.util.HttpUtils;
 
@@ -40,6 +40,15 @@ public class ProductController extends BaseController {
 		SimpleResult rs = new SimpleResult();
 		rs.setResult("suc");
 		rs.setData(productService.getProductList());
+		
+		HttpUtils.writeJsonString(resp, JSON.toJSONString(rs));
+	}
+
+	@RequestMapping(value = "/add", method = RequestMethod.POST)
+	public @ResponseBody void addNewProduct(Product product, HttpServletRequest req, HttpServletResponse resp) throws Exception {
+		SimpleResult rs = new SimpleResult();
+		productService.addNewProduct(product);
+		rs.setResult("suc");
 		
 		HttpUtils.writeJsonString(resp, JSON.toJSONString(rs));
 	}
