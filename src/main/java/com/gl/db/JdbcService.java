@@ -7,17 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Service;
-
-@Service
 public class JdbcService {
 	
-	@Autowired
-	private ApplicationContext applicationContext;
-	
-	public Connection getConn() throws ClassNotFoundException, SQLException {
+	public static Connection getConn() throws ClassNotFoundException, SQLException {
 		String dbFilePath = Thread.currentThread().getContextClassLoader().getResource("gl.mdb").getPath().substring(1);
 		System.out.println(dbFilePath);
 		Class.forName("sun.jdbc.odbc.JdbcOdbcDriver");
@@ -26,7 +18,7 @@ public class JdbcService {
 		return conn;
 	}
 	
-	public void closeConn(ResultSet rs, Statement stmt, Connection conn) {
+	public static void closeConn(ResultSet rs, Statement stmt, Connection conn) {
 		if (rs != null) {
 			try {
 				rs.close();
@@ -53,7 +45,7 @@ public class JdbcService {
 		}
 	}
 	
-	public void closeConn(Statement stmt, Connection conn) {
+	public static void closeConn(Statement stmt, Connection conn) {
 		if (stmt != null) {
 			try {
 				stmt.close();
@@ -72,12 +64,12 @@ public class JdbcService {
 		}
 	}
 	
-	public int executeSql(String sql) throws Exception {
+	public static int executeSql(String sql) throws Exception {
 		Connection conn = null;
 		PreparedStatement stmt = null;
 		int count = 0;
 		try {
-			conn = this.getConn();
+			conn = getConn();
 			stmt = conn.prepareStatement(sql);
 			count = stmt.executeUpdate();
 		}
@@ -85,7 +77,7 @@ public class JdbcService {
 			throw ex;
 		}
 		finally {
-			this.closeConn(stmt, conn);
+			closeConn(stmt, conn);
 		}
 		return count;
 	}

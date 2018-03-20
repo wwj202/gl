@@ -4,6 +4,7 @@ public class Product {
 	
 	private int id;
 	private String fldSeries;
+	private String fldSeriesName;
 	private String fldName;
 	private String fldSpec;
 	private float fldPrice;
@@ -21,6 +22,12 @@ public class Product {
 	}
 	public void setFldSeries(String fldSeries) {
 		this.fldSeries = fldSeries;
+	}
+	public String getFldSeriesName() {
+		return fldSeriesName;
+	}
+	public void setFldSeriesName(String fldSeriesName) {
+		this.fldSeriesName = fldSeriesName;
 	}
 	public String getFldName() {
 		return fldName;

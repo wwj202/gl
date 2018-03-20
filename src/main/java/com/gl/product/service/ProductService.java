@@ -2,7 +2,9 @@ package com.gl.product.service;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,25 +14,26 @@ import com.gl.product.entity.Product;
 
 @Service
 public class ProductService {
-
-	@Autowired
-	private JdbcService jdbcService;
 	
 	public List<Product> getProductList() throws Exception {
+		Map<Integer, String> map = this.getSeriesMap();
 		List<Product> list = new ArrayList<Product>();
 		Connection conn = null;
 		ResultSet rs = null;
 		Statement stmt = null;
 		try {
-			conn = jdbcService.getConn();
+			conn = JdbcService.getConn();
 			stmt = conn.createStatement();
 			String sql = "select * from tbl_product";
 			rs = stmt.executeQuery(sql);
+			String series;
 			while (rs.next()) {
+				series = rs.getString("fld_series");
 				Product product = new Product();
 				product.setId(rs.getInt("id"));
 				product.setFldName(rs.getString("fld_name"));
-				product.setFldSeries(rs.getString("fld_series"));
+				product.setFldSeries(series);
+				product.setFldSeriesName(map.get(Integer.valueOf(series)));
 				product.setFldSpec(rs.getString("fld_spec"));
 				product.setFldPrice(rs.getFloat("fld_price"));
 				product.setFldVipPrice(rs.getFloat("fld_vip_price"));
@@ -42,7 +45,7 @@ public class ProductService {
 			throw ex;
 		}
 		finally {
-			jdbcService.closeConn(rs, stmt, conn);
+			JdbcService.closeConn(rs, stmt, conn);
 		}
 		return list;
 	}
@@ -59,6 +62,35 @@ public class ProductService {
 			.append(")");
 		String sql = sb.toString();
 		System.out.println(sql);
-		jdbcService.executeSql(sql);
+		JdbcService.executeSql(sql);
+	}
+
+	private Map<Integer, String> getSeriesMap() throws Exception {
+		Map<Integer, String> map = new HashMap<Integer, String>();
+		List<Product> list = new ArrayList<Product>();
+		Connection conn = null;
+		ResultSet rs = null;
+		Statement stmt = null;
+		try {
+			conn = JdbcService.getConn();
+			stmt = conn.createStatement();
+			String sql = "select * from tbl_series";
+			rs = stmt.executeQuery(sql);
+			String name;
+			Integer id;
+			while (rs.next()) {
+				Product product = new Product();
+				id = rs.getInt("id");
+				name = rs.getString("fld_name");
+				map.put(id, name);
+			}
+		}
+		catch (Exception ex) {
+			throw ex;
+		}
+		finally {
+			JdbcService.closeConn(rs, stmt, conn);
+		}
+		return map;
 	}
 }
