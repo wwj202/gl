@@ -11,7 +11,7 @@ public class JdbcService {
 	
 	public static Connection getConn() throws ClassNotFoundException, SQLException {
 		String dbFilePath = Thread.currentThread().getContextClassLoader().getResource("gl.mdb").getPath().substring(1);
-		System.out.println(dbFilePath);
+		//System.out.println(dbFilePath);
 		Class.forName("sun.jdbc.odbc.JdbcOdbcDriver");
 		String url = "jdbc:odbc:Driver={MicroSoft Access Driver (*.mdb)};DBQ=" + dbFilePath;
 		Connection conn = DriverManager.getConnection(url, "", "");

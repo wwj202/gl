@@ -61,4 +61,22 @@ public class ProductController extends BaseController {
 		
 		HttpUtils.writeJsonString(resp, JSON.toJSONString(rs));
 	}
+
+	@RequestMapping(value = "/update", method = RequestMethod.POST)
+	public @ResponseBody void updateProduct(Product product, HttpServletRequest req, HttpServletResponse resp) throws Exception {
+		SimpleResult rs = new SimpleResult();
+		productService.updateProduct(product);
+		rs.setResult("suc");
+		
+		HttpUtils.writeJsonString(resp, JSON.toJSONString(rs));
+	}
+
+	@RequestMapping(value = "/delete", method = RequestMethod.POST)
+	public @ResponseBody void deleteProduct(Integer id, HttpServletRequest req, HttpServletResponse resp) throws Exception {
+		SimpleResult rs = new SimpleResult();
+		productService.deleteProduct(id);
+		rs.setResult("suc");
+		
+		HttpUtils.writeJsonString(resp, JSON.toJSONString(rs));
+	}
 }

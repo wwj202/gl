@@ -27,9 +27,9 @@ public class ProductService {
 			stmt = conn.createStatement();
 			String sql = "select * from tbl_product";
 			rs = stmt.executeQuery(sql);
-			String series;
+			int series;
 			while (rs.next()) {
-				series = rs.getString("fld_series");
+				series = rs.getInt("fld_series");
 				Product product = new Product();
 				product.setId(rs.getInt("id"));
 				product.setFldName(rs.getString("fld_name"));
@@ -53,16 +53,35 @@ public class ProductService {
 
 	public void addNewProduct(Product product) throws Exception {
 		StringBuilder sb = new StringBuilder();
-		sb.append("insert into tbl_product(fld_name, fld_series, fld_spec, fld_price, fld_vip_price, fld_vip_voucher)")
+		sb.append("insert into tbl_product(fld_name, fld_spec, fld_series, fld_price, fld_vip_price, fld_vip_voucher)")
 			.append(" values('").append(product.getFldName())
-			.append("', '").append(product.getFldSeries())
 			.append("', '").append(product.getFldSpec())
-			.append("', ").append(product.getFldPrice())
+			.append("', ").append(product.getFldSeries())
+			.append(", ").append(product.getFldPrice())
 			.append(", ").append(product.getFldVipPrice())
 			.append(", ").append(product.getFldVipVoucher())
 			.append(")");
 		String sql = sb.toString();
 		System.out.println(sql);
+		JdbcService.executeSql(sql);
+	}
+
+	public void updateProduct(Product product) throws Exception {
+		StringBuilder sb = new StringBuilder();
+		sb.append("update tbl_product set fld_name='").append(product.getFldName())
+			.append("', fld_spec='").append(product.getFldSpec())
+			.append("', fld_series=").append(product.getFldSeries())
+			.append(", fld_price=").append(product.getFldPrice())
+			.append(", fld_vip_price=").append(product.getFldVipPrice())
+			.append(", fld_vip_voucher=").append(product.getFldVipVoucher())
+			.append(" where id=").append(product.getId());
+		String sql = sb.toString();
+		System.out.println(sql);
+		JdbcService.executeSql(sql);
+	}
+
+	public void deleteProduct(Integer id) throws Exception {
+		String sql = "delete from tbl_product where id=" + id.intValue();
 		JdbcService.executeSql(sql);
 	}
 	

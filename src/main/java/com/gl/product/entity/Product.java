@@ -3,7 +3,7 @@ package com.gl.product.entity;
 public class Product {
 	
 	private int id;
-	private String fldSeries;
+	private int fldSeries;
 	private String fldSeriesName;
 	private String fldName;
 	private String fldSpec;
@@ -17,10 +17,10 @@ public class Product {
 	public void setId(int id) {
 		this.id = id;
 	}
-	public String getFldSeries() {
+	public int getFldSeries() {
 		return fldSeries;
 	}
-	public void setFldSeries(String fldSeries) {
+	public void setFldSeries(int fldSeries) {
 		this.fldSeries = fldSeries;
 	}
 	public String getFldSeriesName() {
