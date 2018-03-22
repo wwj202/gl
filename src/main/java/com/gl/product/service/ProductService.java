@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.gl.db.JdbcService;
 import com.gl.product.entity.Product;
+import com.gl.product.entity.Series;
 
 @Service
 public class ProductService {
@@ -64,10 +65,9 @@ public class ProductService {
 		System.out.println(sql);
 		JdbcService.executeSql(sql);
 	}
-
-	private Map<Integer, String> getSeriesMap() throws Exception {
-		Map<Integer, String> map = new HashMap<Integer, String>();
-		List<Product> list = new ArrayList<Product>();
+	
+	public List<Series> getSeriesList() throws Exception {
+		List<Series> list = new ArrayList<Series>();
 		Connection conn = null;
 		ResultSet rs = null;
 		Statement stmt = null;
@@ -77,12 +77,15 @@ public class ProductService {
 			String sql = "select * from tbl_series";
 			rs = stmt.executeQuery(sql);
 			String name;
-			Integer id;
+			int id;
+			Series series;
 			while (rs.next()) {
-				Product product = new Product();
+				series = new Series();
 				id = rs.getInt("id");
 				name = rs.getString("fld_name");
-				map.put(id, name);
+				series.setId(id);
+				series.setFldName(name);
+				list.add(series);
 			}
 		}
 		catch (Exception ex) {
@@ -90,6 +93,15 @@ public class ProductService {
 		}
 		finally {
 			JdbcService.closeConn(rs, stmt, conn);
+		}
+		return list;
+	}
+
+	private Map<Integer, String> getSeriesMap() throws Exception {
+		Map<Integer, String> map = new HashMap<Integer, String>();
+		List<Series> list = this.getSeriesList();
+		for (Series series : list) {
+			map.put(series.getId(), series.getFldName());
 		}
 		return map;
 	}

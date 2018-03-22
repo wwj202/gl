@@ -44,6 +44,15 @@ public class ProductController extends BaseController {
 		HttpUtils.writeJsonString(resp, JSON.toJSONString(rs));
 	}
 
+	@RequestMapping(value = "/series/list", method = RequestMethod.GET)
+	public @ResponseBody void listAllSeries(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+		SimpleResult rs = new SimpleResult();
+		rs.setResult("suc");
+		rs.setData(productService.getSeriesList());
+		
+		HttpUtils.writeJsonString(resp, JSON.toJSONString(rs));
+	}
+
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public @ResponseBody void addNewProduct(Product product, HttpServletRequest req, HttpServletResponse resp) throws Exception {
 		SimpleResult rs = new SimpleResult();
