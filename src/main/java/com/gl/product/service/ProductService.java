@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gl.db.JdbcService;
@@ -49,6 +48,15 @@ public class ProductService {
 			JdbcService.closeConn(rs, stmt, conn);
 		}
 		return list;
+	}
+
+	public Map<Integer, Product> getProductMap() throws Exception {
+		Map<Integer, Product> map = new HashMap<Integer, Product>();
+		List<Product> list = this.getProductList();
+		for (Product product : list) {
+			map.put(product.getId(), product);
+		}
+		return map;
 	}
 
 	public void addNewProduct(Product product) throws Exception {

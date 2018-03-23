@@ -1,7 +1,5 @@
 package com.gl.product.controller;
 
-import java.io.File;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -23,13 +21,12 @@ import com.gl.util.HttpUtils;
 public class ProductController extends BaseController {
 	
 	@Autowired
-	private ProductService productService;
+	private ProductService service;
 
 	@RequestMapping(value = "/test", method = RequestMethod.GET)
 	public @ResponseBody void testMVC(HttpServletRequest req, HttpServletResponse resp) {
 		SimpleResult rs = new SimpleResult();
 		rs.setResult("suc");
-		File dir = new File("");
 		rs.setData(Thread.currentThread().getContextClassLoader().getResource("gl.mdb").getPath());
 		
 		HttpUtils.writeJsonString(resp, JSON.toJSONString(rs));
@@ -39,7 +36,7 @@ public class ProductController extends BaseController {
 	public @ResponseBody void listProduct(HttpServletRequest req, HttpServletResponse resp) throws Exception {
 		SimpleResult rs = new SimpleResult();
 		rs.setResult("suc");
-		rs.setData(productService.getProductList());
+		rs.setData(service.getProductList());
 		
 		HttpUtils.writeJsonString(resp, JSON.toJSONString(rs));
 	}
@@ -48,7 +45,7 @@ public class ProductController extends BaseController {
 	public @ResponseBody void listAllSeries(HttpServletRequest req, HttpServletResponse resp) throws Exception {
 		SimpleResult rs = new SimpleResult();
 		rs.setResult("suc");
-		rs.setData(productService.getSeriesList());
+		rs.setData(service.getSeriesList());
 		
 		HttpUtils.writeJsonString(resp, JSON.toJSONString(rs));
 	}
@@ -56,7 +53,7 @@ public class ProductController extends BaseController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public @ResponseBody void addNewProduct(Product product, HttpServletRequest req, HttpServletResponse resp) throws Exception {
 		SimpleResult rs = new SimpleResult();
-		productService.addNewProduct(product);
+		service.addNewProduct(product);
 		rs.setResult("suc");
 		
 		HttpUtils.writeJsonString(resp, JSON.toJSONString(rs));
@@ -65,7 +62,7 @@ public class ProductController extends BaseController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	public @ResponseBody void updateProduct(Product product, HttpServletRequest req, HttpServletResponse resp) throws Exception {
 		SimpleResult rs = new SimpleResult();
-		productService.updateProduct(product);
+		service.updateProduct(product);
 		rs.setResult("suc");
 		
 		HttpUtils.writeJsonString(resp, JSON.toJSONString(rs));
@@ -74,7 +71,7 @@ public class ProductController extends BaseController {
 	@RequestMapping(value = "/delete", method = RequestMethod.POST)
 	public @ResponseBody void deleteProduct(Integer id, HttpServletRequest req, HttpServletResponse resp) throws Exception {
 		SimpleResult rs = new SimpleResult();
-		productService.deleteProduct(id);
+		service.deleteProduct(id);
 		rs.setResult("suc");
 		
 		HttpUtils.writeJsonString(resp, JSON.toJSONString(rs));

@@ -11,6 +11,7 @@ import com.gl.exception.BusinessException;
 
 public class ExcelUtilPoi {
 	
+	@SuppressWarnings("resource")
 	public static List<Map<String, String>> readExcelDataToMap(String fileFullName, String[] titles) throws IOException, BusinessException {
 		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
 		InputStream is = new FileInputStream(fileFullName);
@@ -51,6 +52,7 @@ public class ExcelUtilPoi {
 		return list;
 	}
 
+	@SuppressWarnings("deprecation")
 	private static String getStringCellValue(Cell cell) {
 		String cellValue = "";  
         if(cell == null){  
