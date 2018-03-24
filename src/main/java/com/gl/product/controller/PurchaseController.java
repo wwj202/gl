@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSON;
 import com.gl.common.controller.BaseController;
 import com.gl.common.entity.SimpleResult;
 import com.gl.exception.BusinessException;
+import com.gl.product.entity.PurchaseDetail;
 import com.gl.product.entity.PurchaseOrder;
 import com.gl.product.service.PurchaseService;
 import com.gl.util.DateUtils;
@@ -54,15 +55,42 @@ public class PurchaseController extends BaseController {
 	}
 
 	@RequestMapping(value = "/detail/list", method = RequestMethod.GET)
-	public @ResponseBody void listDetail(Integer id, HttpServletRequest req, HttpServletResponse resp) throws Exception {
-		if (id == null || id <= 0) {
+	public @ResponseBody void listPurchaseDetail(Integer orderId, HttpServletRequest req, HttpServletResponse resp) throws Exception {
+		if (orderId == null || orderId <= 0) {
 			throw new BusinessException("参数不正确！");
 		}
 		SimpleResult rs = new SimpleResult();
 		rs.setResult("suc");
-		rs.setData(service.getPurchaseDetailList(id));
+		rs.setData(service.getPurchaseDetailList(orderId));
 		
 		HttpUtils.writeJsonString(resp, JSON.toJSONStringWithDateFormat(rs, DateUtils.DATE_FORMAT));
+	}
+
+	@RequestMapping(value = "/detail/add", method = RequestMethod.POST)
+	public @ResponseBody void addNewPurchaseDetail(PurchaseDetail detail, HttpServletRequest req, HttpServletResponse resp) throws Exception {
+		SimpleResult rs = new SimpleResult();
+		service.addNewPurchaseOrder(detail);
+		rs.setResult("suc");
+		
+		HttpUtils.writeJsonString(resp, JSON.toJSONString(rs));
+	}
+
+	@RequestMapping(value = "/detail/update", method = RequestMethod.POST)
+	public @ResponseBody void updatePurchaseDetail(PurchaseDetail detail, HttpServletRequest req, HttpServletResponse resp) throws Exception {
+		SimpleResult rs = new SimpleResult();
+		service.updatePurchaseDetail(detail);
+		rs.setResult("suc");
+		
+		HttpUtils.writeJsonString(resp, JSON.toJSONString(rs));
+	}
+
+	@RequestMapping(value = "/detail/delete", method = RequestMethod.POST)
+	public @ResponseBody void deletePurchaseDetail(PurchaseDetail detail, HttpServletRequest req, HttpServletResponse resp) throws Exception {
+		SimpleResult rs = new SimpleResult();
+		service.deletePurchaseDetail(detail);
+		rs.setResult("suc");
+		
+		HttpUtils.writeJsonString(resp, JSON.toJSONString(rs));
 	}
 
 }

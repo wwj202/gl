@@ -100,6 +100,7 @@ public class PurchaseService {
 				detail.setId(rs.getInt("id"));
 				detail.setFldOrder(rs.getInt("fld_order"));
 				detail.setFldProduct(productId);
+				detail.setFldCount(rs.getInt("fld_count"));
 				detail.setFldPrice(rs.getFloat("fld_price"));
 				detail.setFldVoucher(rs.getFloat("fld_voucher"));
 				detail.setFldVipPrice(rs.getFloat("fld_vip_price"));
@@ -119,6 +120,100 @@ public class PurchaseService {
 			JdbcService.closeConn(rs, stmt, conn);
 		}
 		return list;
+	}
+
+	public void addNewPurchaseOrder(PurchaseDetail detail) throws Exception {
+		StringBuilder sb = new StringBuilder();
+		int orderId, count;
+		float price, voucher, vipPrice, vipVoucher;
+		orderId = detail.getFldOrder();
+		count = detail.getFldCount();
+		price = detail.getFldPrice();
+		voucher = detail.getFldVoucher();
+		vipPrice = detail.getFldVipPrice();
+		vipVoucher = detail.getFldVipVoucher();
+		sb.append("insert into tbl_purchase_detail(fld_order, fld_product, fld_count, fld_price, fld_voucher, fld_vip_price, fld_vip_voucher)")
+			.append(" values(").append(orderId)
+			.append(", ").append(detail.getFldProduct())
+			.append(", ").append(count)
+			.append(", ").append(price)
+			.append(", ").append(voucher)
+			.append(", ").append(vipPrice)
+			.append(", ").append(vipVoucher)
+			.append(")");
+		String sql = sb.toString();
+		System.out.println(sql);
+		JdbcService.executeSql(sql);
+		
+		// update order
+		this.updateMoneyOfPurchaseOrder(detail);
+	}
+
+	private void updateMoneyOfPurchaseOrder(PurchaseDetail detail) throws Exception {
+		int orderId = detail.getFldOrder();
+		float price = -1, voucher = -1, vipPrice = -1, vipVoucher = -1;
+		Connection conn = null;
+		ResultSet rs = null;
+		Statement stmt = null;
+		try {
+			conn = JdbcService.getConn();
+			stmt = conn.createStatement();
+			String sql = "select sum(fld_count * fld_price) as fld_total_price, sum(fld_count * fld_voucher) as fld_total_voucher, "
+					+ "sum(fld_count * fld_vip_price) as fld_total_vip_price, sum(fld_count * fld_vip_voucher) as fld_total_vip_voucher"
+					+ " from tbl_purchase_detail where fld_order=" + orderId;
+			rs = stmt.executeQuery(sql);
+			if (rs.next()) {
+				price = rs.getFloat("fld_total_price");
+				voucher = rs.getFloat("fld_total_voucher");
+				vipPrice = rs.getFloat("fld_total_vip_price");
+				vipVoucher = rs.getFloat("fld_total_vip_voucher");
+			}
+		}
+		catch (Exception ex) {
+			throw ex;
+		}
+		finally {
+			JdbcService.closeConn(rs, stmt, conn);
+		}
+		
+		if (price >= 0f && voucher >= 0f && vipPrice >= 0f && vipVoucher >= 0f) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("update tbl_purchase_order set fld_price=").append(price)
+				.append(", fld_voucher=").append(voucher)
+				.append(", fld_vip_price=").append(vipPrice)
+				.append(", fld_vip_voucher=").append(vipVoucher)
+				.append(", fld_diff_price=").append(price - vipPrice)
+				.append(", fld_diff_voucher=").append(voucher - vipVoucher)
+				.append(" where id=").append(orderId);
+			String sql = sb.toString();
+			System.out.println(sql);
+			JdbcService.executeSql(sql);
+		}
+	}
+
+	public void updatePurchaseDetail(PurchaseDetail detail) throws Exception {
+		StringBuilder sb = new StringBuilder();
+		sb.append("update tbl_purchase_detail set fld_product=").append(detail.getFldProduct())
+			.append(", fld_count=").append(detail.getFldCount())
+			.append(", fld_price=").append(detail.getFldPrice())
+			.append(", fld_voucher=").append(detail.getFldVoucher())
+			.append(", fld_vip_price=").append(detail.getFldVipPrice())
+			.append(", fld_vip_voucher=").append(detail.getFldVipVoucher())
+			.append(" where id=").append(detail.getId());
+		String sql = sb.toString();
+		System.out.println(sql);
+		JdbcService.executeSql(sql);
+		
+		// update order
+		this.updateMoneyOfPurchaseOrder(detail);
+	}
+
+	public void deletePurchaseDetail(PurchaseDetail detail) throws Exception {
+		String sql = "delete from tbl_purchase_detail where id=" + detail.getId();
+		JdbcService.executeSql(sql);
+		
+		// update order
+		this.updateMoneyOfPurchaseOrder(detail);
 	}
 
 }
