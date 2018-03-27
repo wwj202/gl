@@ -1,10 +1,11 @@
 package com.gl.product.entity;
 
-public class PurchaseOrder {
+public class SellOrder {
 	
 	private int id;
 	private String fldDate;
 	private String fldHandler;
+	private String fldCustomer;
 	private float fldPrice;
 	private float fldVoucher;
 	private float fldVipPrice;
@@ -30,6 +31,12 @@ public class PurchaseOrder {
 	}
 	public void setFldHandler(String fldHandler) {
 		this.fldHandler = fldHandler;
+	}
+	public String getFldCustomer() {
+		return fldCustomer;
+	}
+	public void setFldCustomer(String fldCustomer) {
+		this.fldCustomer = fldCustomer;
 	}
 	public float getFldPrice() {
 		return fldPrice;
