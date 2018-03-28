@@ -7,6 +7,7 @@ public class Subsidy {
 	private String fldCustomer;
 	private int fldCount;
 	private float fldPrice;
+	private float fldTotalPrice;
 	
 	public int getId() {
 		return id;
@@ -37,6 +38,12 @@ public class Subsidy {
 	}
 	public void setFldPrice(float fldPrice) {
 		this.fldPrice = fldPrice;
+	}
+	public float getFldTotalPrice() {
+		return fldTotalPrice;
+	}
+	public void setFldTotalPrice(float fldTotalPrice) {
+		this.fldTotalPrice = fldTotalPrice;
 	}
 
 }

@@ -33,6 +33,15 @@ public class SubsidyController extends BaseController {
 		HttpUtils.writeJsonString(resp, JSON.toJSONStringWithDateFormat(rs, DateUtils.DATE_FORMAT));
 	}
 
+	@RequestMapping(value = "/stat", method = RequestMethod.GET)
+	public @ResponseBody void listSubsidyStatistics(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+		SimpleResult rs = new SimpleResult();
+		rs.setResult("suc");
+		rs.setData(service.listSubsidyStatistics());
+		
+		HttpUtils.writeJsonString(resp, JSON.toJSONStringWithDateFormat(rs, DateUtils.DATE_FORMAT));
+	}
+
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public @ResponseBody void addNewSubsidy(Subsidy subsidy, HttpServletRequest req, HttpServletResponse resp) throws Exception {
 		SimpleResult rs = new SimpleResult();

@@ -45,6 +45,63 @@ public class SubsidyService {
 		return list;
 	}
 
+	public List<Subsidy> listSubsidyStatistics() throws Exception {
+		List<Subsidy> list = new ArrayList<Subsidy>();
+		Connection conn = null;
+		ResultSet rs = null;
+		Statement stmt = null;
+		try {
+			conn = JdbcService.getConn();
+			stmt = conn.createStatement();
+			String sql = "select * from tbl_subsidy";
+			rs = stmt.executeQuery(sql);
+			Subsidy order;
+			while (rs.next()) {
+				order = new Subsidy();
+				order.setId(rs.getInt("id"));
+				order.setFldDate(DateUtils.formatDate(rs.getDate("fld_date")));
+				order.setFldCustomer(rs.getString("fld_customer"));
+				order.setFldPrice(rs.getFloat("fld_price"));
+				order.setFldCount(rs.getInt("fld_count"));
+				list.add(order);
+			}
+		}
+		catch (Exception ex) {
+			throw ex;
+		}
+		finally {
+			JdbcService.closeConn(rs, stmt, conn);
+		}
+		List<Subsidy> listResult = new ArrayList<Subsidy>();
+		String oldMonth = "";
+		int count = 0;
+		float totalPrice = 0;
+		Subsidy temp = null;
+		for (Subsidy subsidy : list) {
+			String month = subsidy.getFldDate().substring(0, 7);
+			if (!oldMonth.equals(month)) {
+				if (!oldMonth.isEmpty()) {
+					temp.setFldDate(oldMonth);
+					temp.setFldCount(count);
+					temp.setFldTotalPrice(totalPrice);
+					listResult.add(temp);
+				}
+				temp = new Subsidy();
+				temp.setId(listResult.size() + 1);
+				count = 0;
+				totalPrice = 0;
+				oldMonth = month;
+			}
+			count += subsidy.getFldCount();
+			totalPrice += subsidy.getFldCount() * subsidy.getFldPrice();
+		}
+		temp.setFldDate(oldMonth);
+		temp.setFldCount(count);
+		temp.setFldTotalPrice(totalPrice);
+		listResult.add(temp);
+		return listResult;
+	}
+
 	public void addNewSubsidy(Subsidy order) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		sb.append("insert into tbl_subsidy(fld_date, fld_customer, fld_price, fld_count)")
