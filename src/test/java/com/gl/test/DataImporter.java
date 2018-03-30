@@ -1,16 +1,12 @@
 package com.gl.test;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.gl.db.JdbcService;
-import com.gl.product.entity.Product;
 import com.gl.util.ExcelUtilPoi;
 
 public class DataImporter {
@@ -66,7 +62,6 @@ public class DataImporter {
 
 	private static Map<String, Integer> getSeriesMap() throws Exception {
 		Map<String, Integer> map = new HashMap<String, Integer>();
-		List<Product> list = new ArrayList<Product>();
 		Connection conn = null;
 		ResultSet rs = null;
 		Statement stmt = null;
@@ -78,7 +73,6 @@ public class DataImporter {
 			String name;
 			Integer id;
 			while (rs.next()) {
-				Product product = new Product();
 				id = rs.getInt("id");
 				name = rs.getString("fld_name");
 				map.put(name, id);
@@ -93,6 +87,7 @@ public class DataImporter {
 		return map;
 	}
 
+	@SuppressWarnings("unused")
 	private static void importSeries() throws Exception {
 		String fileName = "D:/gl/绿叶产品清单20180307.xlsx";
 		String [] titles = new String[] {"series"};

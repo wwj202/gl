@@ -1,4 +1,4 @@
-package com.gl.db;
+package com.gl.test;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,12 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.springframework.stereotype.Service;
-
-@Service
 public class JdbcService {
 	
-	public Connection getConn() throws ClassNotFoundException, SQLException {
+	public static Connection getConn() throws ClassNotFoundException, SQLException {
 		String dbFilePath = Thread.currentThread().getContextClassLoader().getResource("gl.mdb").getPath().substring(1);
 		//System.out.println(dbFilePath);
 		Class.forName("sun.jdbc.odbc.JdbcOdbcDriver");
@@ -21,7 +18,7 @@ public class JdbcService {
 		return conn;
 	}
 	
-	public void closeConn(ResultSet rs, Statement stmt, Connection conn) {
+	public static void closeConn(ResultSet rs, Statement stmt, Connection conn) {
 		if (rs != null) {
 			try {
 				rs.close();
@@ -48,7 +45,7 @@ public class JdbcService {
 		}
 	}
 	
-	public void closeConn(Statement stmt, Connection conn) {
+	public static void closeConn(Statement stmt, Connection conn) {
 		if (stmt != null) {
 			try {
 				stmt.close();
@@ -67,7 +64,7 @@ public class JdbcService {
 		}
 	}
 	
-	public int executeSql(String sql) throws Exception {
+	public static int executeSql(String sql) throws Exception {
 		Connection conn = null;
 		PreparedStatement stmt = null;
 		int count = 0;

@@ -20,6 +20,9 @@ import com.gl.util.DateUtils;
 public class PurchaseService {
 	
 	@Autowired
+	private JdbcService jdbcService;
+	
+	@Autowired
 	private ProductService productService;
 	
 	public List<PurchaseOrder> getPurchaseOrderList() throws Exception {
@@ -28,7 +31,7 @@ public class PurchaseService {
 		ResultSet rs = null;
 		Statement stmt = null;
 		try {
-			conn = JdbcService.getConn();
+			conn = jdbcService.getConn();
 			stmt = conn.createStatement();
 			String sql = "select * from tbl_purchase_order";
 			rs = stmt.executeQuery(sql);
@@ -52,7 +55,7 @@ public class PurchaseService {
 			throw ex;
 		}
 		finally {
-			JdbcService.closeConn(rs, stmt, conn);
+			jdbcService.closeConn(rs, stmt, conn);
 		}
 		return list;
 	}
@@ -66,7 +69,7 @@ public class PurchaseService {
 			.append("', 0, 0, 0, 0, 0, 0)");
 		String sql = sb.toString();
 		System.out.println(sql);
-		JdbcService.executeSql(sql);
+		jdbcService.executeSql(sql);
 	}
 
 	public void updatePurchaseOrder(PurchaseOrder order) throws Exception {
@@ -77,7 +80,7 @@ public class PurchaseService {
 			.append("' where id=").append(order.getId());
 		String sql = sb.toString();
 		System.out.println(sql);
-		JdbcService.executeSql(sql);
+		jdbcService.executeSql(sql);
 	}
 
 	public List<PurchaseDetail> getPurchaseDetailList(Integer orderId) throws Exception {
@@ -87,7 +90,7 @@ public class PurchaseService {
 		ResultSet rs = null;
 		Statement stmt = null;
 		try {
-			conn = JdbcService.getConn();
+			conn = jdbcService.getConn();
 			stmt = conn.createStatement();
 			String sql = "select * from tbl_purchase_detail where fld_order=" + orderId;
 			rs = stmt.executeQuery(sql);
@@ -117,7 +120,7 @@ public class PurchaseService {
 			throw ex;
 		}
 		finally {
-			JdbcService.closeConn(rs, stmt, conn);
+			jdbcService.closeConn(rs, stmt, conn);
 		}
 		return list;
 	}
@@ -143,7 +146,7 @@ public class PurchaseService {
 			.append(")");
 		String sql = sb.toString();
 		System.out.println(sql);
-		JdbcService.executeSql(sql);
+		jdbcService.executeSql(sql);
 		
 		// update order
 		this.updateMoneyOfPurchaseOrder(detail);
@@ -156,7 +159,7 @@ public class PurchaseService {
 		ResultSet rs = null;
 		Statement stmt = null;
 		try {
-			conn = JdbcService.getConn();
+			conn = jdbcService.getConn();
 			stmt = conn.createStatement();
 			String sql = "select sum(fld_count * fld_price) as fld_total_price, sum(fld_count * fld_voucher) as fld_total_voucher, "
 					+ "sum(fld_count * fld_vip_price) as fld_total_vip_price, sum(fld_count * fld_vip_voucher) as fld_total_vip_voucher"
@@ -173,7 +176,7 @@ public class PurchaseService {
 			throw ex;
 		}
 		finally {
-			JdbcService.closeConn(rs, stmt, conn);
+			jdbcService.closeConn(rs, stmt, conn);
 		}
 		
 		if (price >= 0f && voucher >= 0f && vipPrice >= 0f && vipVoucher >= 0f) {
@@ -187,7 +190,7 @@ public class PurchaseService {
 				.append(" where id=").append(orderId);
 			String sql = sb.toString();
 			System.out.println(sql);
-			JdbcService.executeSql(sql);
+			jdbcService.executeSql(sql);
 		}
 	}
 
@@ -202,7 +205,7 @@ public class PurchaseService {
 			.append(" where id=").append(detail.getId());
 		String sql = sb.toString();
 		System.out.println(sql);
-		JdbcService.executeSql(sql);
+		jdbcService.executeSql(sql);
 		
 		// update order
 		this.updateMoneyOfPurchaseOrder(detail);
@@ -210,7 +213,7 @@ public class PurchaseService {
 
 	public void deletePurchaseDetail(PurchaseDetail detail) throws Exception {
 		String sql = "delete from tbl_purchase_detail where id=" + detail.getId();
-		JdbcService.executeSql(sql);
+		jdbcService.executeSql(sql);
 		
 		// update order
 		this.updateMoneyOfPurchaseOrder(detail);

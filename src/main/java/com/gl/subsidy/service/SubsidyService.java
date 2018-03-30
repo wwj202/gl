@@ -6,6 +6,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gl.db.JdbcService;
@@ -15,13 +16,16 @@ import com.gl.util.DateUtils;
 @Service
 public class SubsidyService {
 	
+	@Autowired
+	private JdbcService jdbcService;
+	
 	public List<Subsidy> getSubsidyList() throws Exception {
 		List<Subsidy> list = new ArrayList<Subsidy>();
 		Connection conn = null;
 		ResultSet rs = null;
 		Statement stmt = null;
 		try {
-			conn = JdbcService.getConn();
+			conn = jdbcService.getConn();
 			stmt = conn.createStatement();
 			String sql = "select * from tbl_subsidy";
 			rs = stmt.executeQuery(sql);
@@ -40,7 +44,7 @@ public class SubsidyService {
 			throw ex;
 		}
 		finally {
-			JdbcService.closeConn(rs, stmt, conn);
+			jdbcService.closeConn(rs, stmt, conn);
 		}
 		return list;
 	}
@@ -51,7 +55,7 @@ public class SubsidyService {
 		ResultSet rs = null;
 		Statement stmt = null;
 		try {
-			conn = JdbcService.getConn();
+			conn = jdbcService.getConn();
 			stmt = conn.createStatement();
 			String sql = "select * from tbl_subsidy";
 			rs = stmt.executeQuery(sql);
@@ -70,7 +74,7 @@ public class SubsidyService {
 			throw ex;
 		}
 		finally {
-			JdbcService.closeConn(rs, stmt, conn);
+			jdbcService.closeConn(rs, stmt, conn);
 		}
 		List<Subsidy> listResult = new ArrayList<Subsidy>();
 		String oldMonth = "";
@@ -112,7 +116,7 @@ public class SubsidyService {
 			.append(")");
 		String sql = sb.toString();
 		System.out.println(sql);
-		JdbcService.executeSql(sql);
+		jdbcService.executeSql(sql);
 	}
 
 	public void updateSubsidy(Subsidy order) throws Exception {
@@ -124,12 +128,12 @@ public class SubsidyService {
 			.append(" where id=").append(order.getId());
 		String sql = sb.toString();
 		System.out.println(sql);
-		JdbcService.executeSql(sql);
+		jdbcService.executeSql(sql);
 	}
 
 	public void deleteSubsidy(Integer subsidyId) throws Exception {
 		String sql = "delete from tbl_subsidy where id=" + subsidyId;
-		JdbcService.executeSql(sql);
+		jdbcService.executeSql(sql);
 	}
 
 }

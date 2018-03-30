@@ -1,20 +1,26 @@
 package com.gl.product.service;
 
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.gl.db.JdbcService;
 import com.gl.product.entity.Product;
 import com.gl.product.entity.SellDetail;
 import com.gl.product.entity.SellOrder;
 import com.gl.util.DateUtils;
+import com.gl.util.ExcelUtilPoi;
 
 @Service
 public class SellService {
@@ -22,13 +28,16 @@ public class SellService {
 	@Autowired
 	private ProductService productService;
 	
+	@Autowired
+	private JdbcService jdbcService;
+	
 	public List<SellOrder> getSellOrderList() throws Exception {
 		List<SellOrder> list = new ArrayList<SellOrder>();
 		Connection conn = null;
 		ResultSet rs = null;
 		Statement stmt = null;
 		try {
-			conn = JdbcService.getConn();
+			conn = jdbcService.getConn();
 			stmt = conn.createStatement();
 			String sql = "select * from tbl_sell_order";
 			rs = stmt.executeQuery(sql);
@@ -53,7 +62,7 @@ public class SellService {
 			throw ex;
 		}
 		finally {
-			JdbcService.closeConn(rs, stmt, conn);
+			jdbcService.closeConn(rs, stmt, conn);
 		}
 		return list;
 	}
@@ -68,7 +77,7 @@ public class SellService {
 			.append("', 0, 0, 0, 0, 0, 0)");
 		String sql = sb.toString();
 		System.out.println(sql);
-		JdbcService.executeSql(sql);
+		jdbcService.executeSql(sql);
 	}
 
 	public void updateSellOrder(SellOrder order) throws Exception {
@@ -80,7 +89,7 @@ public class SellService {
 			.append("' where id=").append(order.getId());
 		String sql = sb.toString();
 		System.out.println(sql);
-		JdbcService.executeSql(sql);
+		jdbcService.executeSql(sql);
 	}
 
 	public List<SellDetail> getSellDetailList(Integer orderId) throws Exception {
@@ -90,7 +99,7 @@ public class SellService {
 		ResultSet rs = null;
 		Statement stmt = null;
 		try {
-			conn = JdbcService.getConn();
+			conn = jdbcService.getConn();
 			stmt = conn.createStatement();
 			String sql = "select * from tbl_sell_detail where fld_order=" + orderId;
 			rs = stmt.executeQuery(sql);
@@ -120,7 +129,7 @@ public class SellService {
 			throw ex;
 		}
 		finally {
-			JdbcService.closeConn(rs, stmt, conn);
+			jdbcService.closeConn(rs, stmt, conn);
 		}
 		return list;
 	}
@@ -146,7 +155,7 @@ public class SellService {
 			.append(")");
 		String sql = sb.toString();
 		System.out.println(sql);
-		JdbcService.executeSql(sql);
+		jdbcService.executeSql(sql);
 		
 		// update order
 		this.updateMoneyOfSellOrder(detail);
@@ -159,7 +168,7 @@ public class SellService {
 		ResultSet rs = null;
 		Statement stmt = null;
 		try {
-			conn = JdbcService.getConn();
+			conn = jdbcService.getConn();
 			stmt = conn.createStatement();
 			String sql = "select sum(fld_count * fld_price) as fld_total_price, sum(fld_count * fld_voucher) as fld_total_voucher, "
 					+ "sum(fld_count * fld_vip_price) as fld_total_vip_price, sum(fld_count * fld_vip_voucher) as fld_total_vip_voucher"
@@ -176,7 +185,7 @@ public class SellService {
 			throw ex;
 		}
 		finally {
-			JdbcService.closeConn(rs, stmt, conn);
+			jdbcService.closeConn(rs, stmt, conn);
 		}
 		
 		if (price >= 0f && voucher >= 0f && vipPrice >= 0f && vipVoucher >= 0f) {
@@ -190,7 +199,7 @@ public class SellService {
 				.append(" where id=").append(orderId);
 			String sql = sb.toString();
 			System.out.println(sql);
-			JdbcService.executeSql(sql);
+			jdbcService.executeSql(sql);
 		}
 	}
 
@@ -205,7 +214,7 @@ public class SellService {
 			.append(" where id=").append(detail.getId());
 		String sql = sb.toString();
 		System.out.println(sql);
-		JdbcService.executeSql(sql);
+		jdbcService.executeSql(sql);
 		
 		// update order
 		this.updateMoneyOfSellOrder(detail);
@@ -213,7 +222,7 @@ public class SellService {
 
 	public void deleteSellDetail(SellDetail detail) throws Exception {
 		String sql = "delete from tbl_sell_detail where id=" + detail.getId();
-		JdbcService.executeSql(sql);
+		jdbcService.executeSql(sql);
 		
 		// update order
 		this.updateMoneyOfSellOrder(detail);
@@ -221,9 +230,114 @@ public class SellService {
 
 	public void deleteSellOrder(Integer orderId) throws Exception {
 		String sql = "delete from tbl_sell_detail where fld_order=" + orderId;
-		JdbcService.executeSql(sql);
+		jdbcService.executeSql(sql);
 		sql = "delete from tbl_sell_order where id=" + orderId;
-		JdbcService.executeSql(sql);
+		jdbcService.executeSql(sql);
+	}
+
+	public void exportSellDetail(HttpServletResponse resp, Integer orderId) throws Exception {
+		Map<Integer, Product> map = productService.getProductMap();
+		List<JSONObject> datas = new ArrayList<JSONObject>();
+		Connection conn = null;
+		ResultSet rs = null;
+		Statement stmt = null;
+		SellOrder order = new SellOrder();
+		try {
+			conn = jdbcService.getConn();
+			stmt = conn.createStatement();
+			String sql = "select * from tbl_sell_order where id=" + orderId;
+			rs = stmt.executeQuery(sql);
+			if (rs.next()) {
+				order.setId(rs.getInt("id"));
+				order.setFldDate(DateUtils.formatDate(rs.getDate("fld_date")));
+				order.setFldCustomer(rs.getString("fld_customer"));
+			}
+		}
+		catch (Exception ex) {
+			throw ex;
+		}
+		finally {
+			jdbcService.closeConn(rs, stmt, conn);
+		}
+		float totalPrice = 0, totalVoucher = 0;
+		JSONObject data;
+		try {
+			conn = jdbcService.getConn();
+			stmt = conn.createStatement();
+			String sql = "select * from tbl_sell_detail where fld_order=" + orderId;
+			rs = stmt.executeQuery(sql);
+			int productId, count;
+			float price, voucher;
+			Product product;
+			while (rs.next()) {
+				productId = rs.getInt("fld_product");
+				count = rs.getInt("fld_count");
+				price = rs.getFloat("fld_price");
+				voucher = rs.getFloat("fld_voucher");
+				product = map.get(Integer.valueOf(productId));
+				data = new JSONObject();
+				if (product != null) {
+					data.put("fldName", product.getFldName());
+					data.put("fldSpec", product.getFldSpec());
+				}
+				data.put("fldCount", count);
+				data.put("fldPrice", price);
+				data.put("fldVoucher", voucher);
+				data.put("fldTotalPrice", count * price);
+				data.put("fldTotalVoucher", count * voucher);
+				datas.add(data);
+				totalPrice += count * price;
+				totalVoucher += count * voucher;
+			}
+		}
+		catch (Exception ex) {
+			throw ex;
+		}
+		finally {
+			jdbcService.closeConn(rs, stmt, conn);
+		}
+		data = new JSONObject();
+		data.put("fldName", "合计");
+		data.put("fldSpec", "");
+		data.put("fldCount", "");
+		data.put("fldPrice", "");
+		data.put("fldVoucher", "");
+		data.put("fldTotalPrice", totalPrice);
+		data.put("fldTotalVoucher", totalVoucher);
+		datas.add(data);
+		
+		List<JSONObject> extraData = new ArrayList<JSONObject>();
+		data = new JSONObject();
+		data.put("row", 0);
+		data.put("col", 1);
+		data.put("value", orderId);
+		extraData.add(data);
+		data = new JSONObject();
+		data.put("row", 0);
+		data.put("col", 3);
+		data.put("value", order.getFldCustomer());
+		extraData.add(data);
+		data = new JSONObject();
+		data.put("row", 0);
+		data.put("col", 5);
+		data.put("value", order.getFldDate());
+		extraData.add(data);
+		
+		String[] keys = new String[] {"fldName", "fldSpec", "fldCount", "fldPrice", "fldVoucher", "fldTotalPrice", "fldTotalVoucher"};
+		List<JSONObject> headers = new ArrayList<JSONObject>();
+		for (String s : keys) {
+			data = new JSONObject();
+			data.put("key", s);
+			headers.add(data);
+		}
+		
+		String fileName = URLEncoder.encode("产品销售明细_" + order.getFldCustomer() + "_", "utf-8");
+		Calendar cal = Calendar.getInstance();
+		fileName += DateUtils.formatDate(cal.getTime(), DateUtils.DATE_FORMAT_NUMBER);
+		resp.setHeader("content-disposition", "attachment;filename=" + fileName + ".xlsx;filename*=utf-8''" + fileName + ".xlsx");
+
+		String fileUrl = Thread.currentThread().getContextClassLoader().getResource("sellTemplate.xlsx").getPath().substring(1);
+		ExcelUtilPoi.exportExcelFromJsonData(resp.getOutputStream(), 3, headers, datas, extraData, fileUrl);
 	}
 
 }

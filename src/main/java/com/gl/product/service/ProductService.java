@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gl.db.JdbcService;
@@ -15,6 +16,9 @@ import com.gl.product.entity.Series;
 @Service
 public class ProductService {
 	
+	@Autowired
+	private JdbcService jdbcService;
+	
 	public List<Product> getProductList() throws Exception {
 		Map<Integer, String> map = this.getSeriesMap();
 		List<Product> list = new ArrayList<Product>();
@@ -22,7 +26,7 @@ public class ProductService {
 		ResultSet rs = null;
 		Statement stmt = null;
 		try {
-			conn = JdbcService.getConn();
+			conn = jdbcService.getConn();
 			stmt = conn.createStatement();
 			String sql = "select * from tbl_product";
 			rs = stmt.executeQuery(sql);
@@ -45,7 +49,7 @@ public class ProductService {
 			throw ex;
 		}
 		finally {
-			JdbcService.closeConn(rs, stmt, conn);
+			jdbcService.closeConn(rs, stmt, conn);
 		}
 		return list;
 	}
@@ -71,7 +75,7 @@ public class ProductService {
 			.append(")");
 		String sql = sb.toString();
 		System.out.println(sql);
-		JdbcService.executeSql(sql);
+		jdbcService.executeSql(sql);
 	}
 
 	public void updateProduct(Product product) throws Exception {
@@ -85,12 +89,12 @@ public class ProductService {
 			.append(" where id=").append(product.getId());
 		String sql = sb.toString();
 		System.out.println(sql);
-		JdbcService.executeSql(sql);
+		jdbcService.executeSql(sql);
 	}
 
 	public void deleteProduct(Integer id) throws Exception {
 		String sql = "delete from tbl_product where id=" + id.intValue();
-		JdbcService.executeSql(sql);
+		jdbcService.executeSql(sql);
 	}
 	
 	public List<Series> getSeriesList() throws Exception {
@@ -99,7 +103,7 @@ public class ProductService {
 		ResultSet rs = null;
 		Statement stmt = null;
 		try {
-			conn = JdbcService.getConn();
+			conn = jdbcService.getConn();
 			stmt = conn.createStatement();
 			String sql = "select * from tbl_series";
 			rs = stmt.executeQuery(sql);
@@ -119,7 +123,7 @@ public class ProductService {
 			throw ex;
 		}
 		finally {
-			JdbcService.closeConn(rs, stmt, conn);
+			jdbcService.closeConn(rs, stmt, conn);
 		}
 		return list;
 	}

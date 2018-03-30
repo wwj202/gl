@@ -102,4 +102,12 @@ public class SellController extends BaseController {
 		HttpUtils.writeJsonString(resp, JSON.toJSONString(rs));
 	}
 
+	@RequestMapping(value = "/detail/export", method = RequestMethod.POST)
+	public @ResponseBody void exportSellDetail(Integer orderId, HttpServletRequest req, HttpServletResponse resp) throws Exception {
+		if (orderId == null || orderId <= 0) {
+			throw new BusinessException("参数不正确！");
+		}
+		service.exportSellDetail(resp, orderId);
+	}
+
 }
