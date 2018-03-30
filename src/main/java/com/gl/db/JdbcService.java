@@ -7,16 +7,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class JdbcService {
 	
+	@Value("#{propertyConfig[dbPath]}")
+	private String dbPath;
+	
 	public Connection getConn() throws ClassNotFoundException, SQLException {
-		String dbFilePath = Thread.currentThread().getContextClassLoader().getResource("gl.mdb").getPath().substring(1);
+		//String dbFilePath = Thread.currentThread().getContextClassLoader().getResource("gl.mdb").getPath().substring(1);
 		//System.out.println(dbFilePath);
 		Class.forName("sun.jdbc.odbc.JdbcOdbcDriver");
-		String url = "jdbc:odbc:Driver={MicroSoft Access Driver (*.mdb)};DBQ=" + dbFilePath;
+		String url = "jdbc:odbc:Driver={MicroSoft Access Driver (*.mdb)};DBQ=" + dbPath;
 		Connection conn = DriverManager.getConnection(url, "", "");
 		return conn;
 	}

@@ -302,8 +302,8 @@ public class SellService {
 		data.put("fldCount", "");
 		data.put("fldPrice", "");
 		data.put("fldVoucher", "");
-		data.put("fldTotalPrice", totalPrice);
-		data.put("fldTotalVoucher", totalVoucher);
+		data.put("fldTotalPrice", Math.round(totalPrice * 100f) / 100f);
+		data.put("fldTotalVoucher", Math.round(totalVoucher * 100f) / 100f);
 		datas.add(data);
 		
 		List<JSONObject> extraData = new ArrayList<JSONObject>();
